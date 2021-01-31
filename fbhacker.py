@@ -64,6 +64,6 @@ while file:
 	if function(email,passw,i):
 		print('Your password is : ',passw)
 		break
-		except:
+		
 		print('\nSleeping for time : 5 min\n')
 		time.sleep(300)

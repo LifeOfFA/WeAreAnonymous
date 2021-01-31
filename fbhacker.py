@@ -30,8 +30,8 @@ file=open('passwords.txt','r')
 
 email=str(raw_input('Enter Email/Username : ').strip())
 
-print "\nTarget Email ID : ",email
-print "\nSearching Passwords.........."
+print ("\nTarget Email ID : ",email)
+print ("\nSearching Passwords..........")
 while file:
 	passw=file.readline().strip()
 	i+=100%

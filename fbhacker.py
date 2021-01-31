@@ -34,7 +34,7 @@ print ("\nTarget Email ID : ",email)
 print ("\nSearching Passwords..........")
 while file:
 	passw=file.readline().strip()
-	i+=100%
+	i+=5
 	if len(passw) < 6:
 		continue
 	print str(i) +" : ",passw
